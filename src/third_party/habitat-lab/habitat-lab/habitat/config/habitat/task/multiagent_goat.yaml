@@ -1,0 +1,36 @@
+
+defaults:
+  - task_config_base
+  - actions:
+    - multiagent_goat_stop
+    - move_forward
+    - turn_left
+    - turn_right
+    - look_up
+    - look_down
+  - measurements:
+    - multiagent_goat_distance_to_sub-goal
+    - multiagent_goat_success
+    - multiagent_goat_spl
+    - goat_top_down_map
+  - lab_sensors:
+    - multigoal_sensor
+    - compass_sensor
+    - gps_sensor
+  - _self_
+
+
+type: Goat-v1
+end_on_success: True # TODO: check
+# success_measure: "goat_sub-task_spl"
+# success_measure: "goat_success"
+
+
+goal_sensor_uuid: objectgoal
+
+measurements:
+  multiagent_goat_distance_to_sub-goal:
+    distance_to: VIEW_POINTS
+  multiagent_goat_success:
+    # success_distance: 0.25 # different for objectnav and langnav
+    success_distance: 1 # different for objectnav and langnav

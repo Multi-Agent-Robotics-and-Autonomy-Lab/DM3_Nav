@@ -1,0 +1,69 @@
+NO_GPU: 0                 # 1: run on CPU, 0: run on GPUs
+DUMP_LOCATION: datadump   # path to dump models and log
+EXP_NAME: temp
+REAL_WORLD: False
+NUM_AGENTS: 2             # number of agents. eval_episode ignores this and runs with one agent.
+SEQ: 0                    # Seq 0 doesn't work with single agents. Seq 1 doesn't work with multiple agents.
+DATASET: goat             # datasets: habitat_objnav_2022, habitat_objnav_2023, goat
+# DATASET: habitat_objnav_2023             # datasets: habitat_objnav_2022, habitat_objnav_2023, goat
+VISUALIZATION_LEVEL: 1    # 0: None, 1: Only Snapshots ans stg, 2: Most usefull images 3: All
+GROUND_TRUTH_SEMANTICS: 0 # 1: use ground-truth semantics (for debugging / ablations)
+USE_YOLO: 0               # 1: use YOLO in addition to Detic for object detection
+
+# Used for the real world experiments, and not simulations
+ENVIRONMENT:
+  max_subtasks_per_episode: 10
+
+AGENT:
+  max_steps: 500          # maximum number of steps before stopping an episode
+  panorama_start: 1       # 1: turn around 360 degrees when starting an episode, 0: don't
+  exploration_strategy: frontier
+  frontier_metric: distance  # metric to use for frontier selection ("distance", "semantics")
+  exploration_type: raycast
+  radius: 0.05                # robot radius (in meters)
+  cat_match_threshold: 0.4    # Used 0.4 for GOAT and Yolo, 0.7 without yolo
+  search_found_goal_freq: 10   # Frequency to search for a goal already found again, in the current frame. If set to 1, it searches current obs for all goals at every timestep
+
+  COMMUNICATION:
+    radius: 5           # m
+    cooldown: 10        # seconds for real world, steps for sim
+    location_valid: 3  # seconds for real world, steps for sim
+
+  SEMANTIC_MAP:
+    semantic_categories: dataset # map semantic channel categories ("coco_indoor", "longtail_indoor", "mukul_indoor")
+    # num_sem_categories: 380           # number of map semantic channel categories (16, 257, 35)
+    map_size_cm: 4800        # global map size (in centimeters)
+    map_resolution: 5        # size of map bins (in centimeters)
+    vision_range: 100        # diameter of local map region visible by the agent (in cells)
+    global_downscaling: 2    # ratio of global over local map
+    du_scale: 1              # frame downscaling before projecting to point cloud
+    cat_pred_threshold: 5.0  # number of depth points to be in bin to classify it as a certain semantic category
+    exp_pred_threshold: 1.0  # number of depth points to be in bin to consider it as explored
+    map_pred_threshold: 1.0  # number of depth points to be in bin to consider it as obstacle
+    been_close_to_radius: 200  # radius (in centimeters) of been close to region
+    target_blacklisting_radius: 100 # radius (in centimeters) of region around goal to blacklist if object isn't a valid target
+    min_obs_height_cm: 20    # minimum height (in centimeters) of obstacle to be considered as obstacle. Used 10 initially, set to 20 in goat
+    goal_filtering: True      # If True, gets the largest connected component of the goal map
+
+  PLANNER:
+    collision_threshold: 0.10       # forward move distance under which we consider there's a collision (in meters)
+    min_obs_dilation_selem_radius: 2    # radius (in cells) of obstacle dilation structuring element
+    obs_dilation_selem_radius: 3    # radius (in cells) of obstacle dilation structuring element
+    map_downsample_factor: 1            # optional downsampling of traversible and goal map before fmm distance call (1 for no downsampling, 2 for halving resolution)
+    map_update_frequency: 1             # compute fmm distance map every n steps 
+    step_size: 5                    # maximum distance of the short-term goal selected by the planner
+    discrete_actions: True         # discrete motion planner output space or not
+    stop_distance: 100              # cm - semantic_map.explored_radius should be bigger than this
+
+  SUPERGLUE:
+    max_keypoints: 1024
+    keypoint_threshold: 0.005
+    nms_radius: 4
+    superglue_model: indoor           # or outdoor
+    sinkhorn_iterations: 20
+    match_threshold: 0.2
+    score_function: confidence_sum    # or match_count
+    score_thresh_image: 24.5  # real-world experiments used 6.0
+    score_thresh_lang: 0.24
+    match_projection_threshold: 0.2   # confidence must be at least this high to project as goal point.
+    goto_past_pose: True
