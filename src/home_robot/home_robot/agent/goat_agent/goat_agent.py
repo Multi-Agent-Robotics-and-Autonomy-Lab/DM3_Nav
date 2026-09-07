@@ -362,7 +362,7 @@ class GoatAgent(Agent):
         stuck = False
         if self.get_subtask_timestep() >= self.max_steps or self.stuck_counter > 30:
             self.log.warning(
-                "Reached max number of steps for subgoal, or stuck somewhere, calling STOP"
+                f"{'Reached max number of steps for subgoal' if self.stuck_counter<= 30 else  'Stuck somewhere'}, calling STOP"
             )
             stuck = True
 
@@ -501,6 +501,8 @@ class GoatAgent(Agent):
             depth_margin_front: float = 0.25
         ):
             robot_mask = np.zeros(depth.shape[:2], dtype=bool)
+            if not self.real_world:
+                return robot_mask
             h, w = depth.shape[:2]
             fx = fy = self.semantic_map_module.camera_matrix.f
             hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
@@ -577,7 +579,7 @@ class GoatAgent(Agent):
                     # Draw the expanded region
                     cv2.rectangle(vis, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
                 cv2.imwrite(
-                    os.path.join(self.planner.vis_dir, f"{self.total_timesteps}_robot_detect.png"),
+                    os.path.join(self.planner.vis_dir, f"{self.total_timesteps}_other_robot_detect.png"),
                     cv2.cvtColor(vis, cv2.COLOR_RGB2BGR)
                 )
 
@@ -723,9 +725,10 @@ class GoatAgent(Agent):
         path = os.path.join(self.planner.vis_dir, f"{self.total_timesteps}_sem.png")
         if self.visualization_level > 2:
             success = cv2.imwrite(path, obs.task_observations["semantic_frame"])
-        ts_path = path.rsplit(".", 1)[0] + ".ts"
-        with open(ts_path, "w") as f:
-            f.write(str(time.time()))
+        if self.real_world:
+            ts_path = path.rsplit(".", 1)[0] + ".ts"
+            with open(ts_path, "w") as f:
+                f.write(str(time.time()))
         obs_preprocessed = torch.cat([rgb, depth, semantic], dim=-1)
 
         if self.record_instance_ids:
@@ -746,7 +749,8 @@ class GoatAgent(Agent):
             
 
             # For ground truth, scores are all 1.0
-            inst_scores = np.concatenate(([0],obs.task_observations["instance_scores"]))[unique_ids][1:]
+            # inst_scores = np.concatenate(([0],obs.task_observations["instance_scores"]))[unique_ids][1:]
+            inst_scores = np.concatenate(([0],obs.task_observations["instance_scores"]))[unique_ids][int(unique_ids[0] == 0):]
 
             obs_preprocessed = torch.cat(
                 [obs_preprocessed, instance_frame_onehot], dim=-1

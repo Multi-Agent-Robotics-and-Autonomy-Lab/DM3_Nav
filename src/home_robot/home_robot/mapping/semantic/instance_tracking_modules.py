@@ -6,11 +6,11 @@ import cv2
 import numpy as np
 import torch
 
-# MIN_PIXELS = 1000
-# MIN_EDGE = 15
-print("DONT FORGET THIS CHANGE")
-MIN_PIXELS = 50
-MIN_EDGE = 10
+MIN_PIXELS = 1000
+MIN_EDGE = 15
+# print("DONT FORGET THIS CHANGE")
+# MIN_PIXELS = 50
+# MIN_EDGE = 10
 
 class InstanceView:
     """

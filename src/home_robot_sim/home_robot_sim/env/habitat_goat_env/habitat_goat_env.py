@@ -85,6 +85,9 @@ class HabitatGoatEnv(HabitatEnv):
 
     def reset(self):
         habitat_obs = self.habitat_env.reset()
+        self.semantic_category_mapping.reset_instance_id_to_category_id(
+            self.habitat_env
+        )
         self.current_episode = self.habitat_env.current_episode
 
         self._last_obs = self._preprocess_obs(habitat_obs)
@@ -97,9 +100,6 @@ class HabitatGoatEnv(HabitatEnv):
         self.episode = self.habitat_env.current_episode
         self.episode_id = self.episode.episode_id
 
-        self.semantic_category_mapping.reset_instance_id_to_category_id(
-            self.habitat_env
-        )
     
     def reset_vis_dir(self):
         if self.visualization_level > 0:
@@ -179,7 +179,10 @@ class HabitatGoatEnv(HabitatEnv):
             habitat_semantic[habitat_semantic >= len(instance_id_to_category_id)] = 0 # 0 is unknown
             obs.semantic = instance_id_to_category_id[habitat_semantic]
             obs.task_observations["instance_frame"] = habitat_semantic
-            obs.task_observations["instance_scores"] = np.ones(np.unique(habitat_semantic).shape[0])
+            #! Make sure I don't mess up
+            # obs.task_observations["instance_scores"] = np.ones(np.unique(habitat_semantic).shape[0])
+            obs.task_observations["instance_scores"] = np.ones(len(instance_id_to_category_id))
+            
             # self.visualize_semantic_with_labels(
             #     semantic_array=obs.semantic + 10,
             #     palette=self.semantic_category_mapping.map_color_palette,
