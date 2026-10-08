@@ -1,0 +1,46 @@
+{
+    "description": "Scout GOAT Navigation Tasks - Real World",
+    "version": "1.0",
+    "episodes": [
+        {
+            "episode_id": 0,
+            "tasks": [
+                {
+                    "type": "objectnav",
+                    "category": "chair"
+                },
+                {
+                    "type": "objectnav",
+                    "category": "cup"
+                },
+                {
+                    "type": "languagenav",
+                    "category": "umbrella",
+                    "description": "a blue umbrella next to a jacket"
+                },
+                {
+                    "type": "objectnav",
+                    "category": "potted_plant"
+                },
+                {
+                    "type": "imagenav",
+                    "category": "kettle",
+                    "image": "projects/habitat_goat/configs/image_goals/kettle.jpeg"
+                },
+                {
+                    "type": "objectnav",
+                    "category": "backpack"
+                },
+                {
+                    "type": "objectnav",
+                    "category": "hoodie"
+                },
+                {
+                    "type": "objectnav",
+                    "category": "tennis_racket",
+                    "description": "a red tennis racket located below a table"
+                }
+            ]
+        }
+    ]
+}

@@ -20,12 +20,13 @@ theseus/extlib/*.so
 temp/
 docs_build/
 viz/
-datasets/
+/datasets/
 scene_datasets/
 datadump/
-*/datasets/
-data/
-data
+# */datasets/
+/data
+/core
+core.[0-9]*
 
 # Archive files
 *.pkl
@@ -60,3 +61,7 @@ logs/*
 
 
 .llm_venv/
+
+
+!src/**/*.png
+!src/**/*.json
