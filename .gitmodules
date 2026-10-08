@@ -29,3 +29,6 @@
 [submodule "src/third_party/MiDaS"]
 	path = src/third_party/MiDaS
 	url = git@github.com:MatthewChang/MiDaS.git
+[submodule "yolov10"]
+	path = yolov10
+	url = https://github.com/THU-MIG/yolov10.git
