@@ -6,11 +6,10 @@ import cv2
 import numpy as np
 import torch
 
+# Defaults for the smallest instance view (bbox pixels, bbox edge) that can be a goal;
+# set per config with AGENT.SEMANTIC_MAP.min_view_pixels / min_view_edge.
 MIN_PIXELS = 1000
 MIN_EDGE = 15
-# print("DONT FORGET THIS CHANGE")
-# MIN_PIXELS = 50
-# MIN_EDGE = 10
 
 class InstanceView:
     """
@@ -85,7 +84,7 @@ class Instance:
         self.category_id = None
         self.instance_views = []
 
-    def _get_valid_views(self, all_images, last_view):
+    def _get_valid_views(self, all_images, last_view, min_pixels=MIN_PIXELS, min_edge=MIN_EDGE):
         views = []
         all_views = [self.instance_views[-1]] if last_view else self.instance_views
         for inst_view in all_views:
@@ -94,7 +93,7 @@ class Instance:
             # logger.debug(f"Evaluating instance {self.id}")
             # logger.debug(f"Total pixels in cropped image: {bbox_shape.prod()} ? {MIN_PIXELS}")
             # logger.debug(f"Minimum edge size in cropped image: {bbox_shape} ? {MIN_EDGE} : {(bbox_shape < MIN_EDGE).any()}")
-            if bbox_shape.prod() < MIN_PIXELS or (bbox_shape < MIN_EDGE).any():
+            if bbox_shape.prod() < min_pixels or (bbox_shape < min_edge).any():
                 continue
             if last_view:
                 img = all_images[inst_view.timestep].cpu().numpy()
@@ -146,6 +145,9 @@ class InstanceMemory:
         log=None
     ):
         self.du_scale = config.AGENT.SEMANTIC_MAP.du_scale
+        # smallest view (bbox pixels, bbox edge) that makes an instance a goal candidate
+        self.min_view_pixels = getattr(config.AGENT.SEMANTIC_MAP, "min_view_pixels", MIN_PIXELS)
+        self.min_view_edge = getattr(config.AGENT.SEMANTIC_MAP, "min_view_edge", MIN_EDGE)
         self.print_images = config.VISUALIZATION_LEVEL > 2
         self.mask_cropped_instances = mask_cropped_instances
         self.padding_cropped_instances = padding_cropped_instances

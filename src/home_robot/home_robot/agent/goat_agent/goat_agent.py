@@ -139,6 +139,12 @@ class GoatAgent(Agent):
             real_world=self.real_world,
             # mask_stairs=self.real_world,
             start_obs_dilation=config.AGENT.PLANNER.min_obs_dilation_selem_radius,
+            gaze_width=getattr(config.AGENT.SEMANTIC_MAP, "gaze_width", None),
+            known_cells_dilation=getattr(config.AGENT.SEMANTIC_MAP, "known_cells_dilation", 7),
+            log_odds_occ=getattr(config.AGENT.SEMANTIC_MAP, "log_odds_occ", 0.5),
+            log_odds_free=getattr(config.AGENT.SEMANTIC_MAP, "log_odds_free", 0.8),
+            max_log_odds=getattr(config.AGENT.SEMANTIC_MAP, "max_log_odds", 5.0),
+            scale_occupancy_by_evidence=getattr(config.AGENT.SEMANTIC_MAP, "scale_occupancy_by_evidence", False),
         )
         self.inst_goal_id = None
 
@@ -186,6 +192,8 @@ class GoatAgent(Agent):
             ground_truth_semantics=config.GROUND_TRUTH_SEMANTICS,
             task_type=self.task_type,
             stop_distance=config.AGENT.PLANNER.stop_distance,
+            frontier_min_size=getattr(config.AGENT.PLANNER, "frontier_min_size", 12),
+            frontier_min_size_min_dilation=getattr(config.AGENT.PLANNER, "frontier_min_size_min_dilation", 8),
             real_world=self.real_world,
         )
 

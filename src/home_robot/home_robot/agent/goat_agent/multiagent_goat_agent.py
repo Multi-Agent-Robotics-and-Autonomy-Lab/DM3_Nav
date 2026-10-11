@@ -29,6 +29,10 @@ class BaseMultiAgentGoatAgent(GoatAgent):
         self.others_active_task_expiration = None
         self.communication_cooldown = config.AGENT.COMMUNICATION.cooldown
         self.location_valid = config.AGENT.COMMUNICATION.location_valid  # for how many steps received locations are valid
+        # True: plan with the neighbour locations known before this step's messages are merged
+        self.neighbor_locs_from_last_step = getattr(config.AGENT.COMMUNICATION, "neighbor_locs_from_last_step", False)
+        # don't merge a neighbour's map if it is farther than this (m) after alignment
+        self.max_merge_distance = getattr(config.AGENT.COMMUNICATION, "max_merge_distance", float("inf"))
         self.active_task_cooldown = 20
         self.map_merger = MapMerger(
             num_sem_categories=self.num_sem_categories,
@@ -44,8 +48,9 @@ class BaseMultiAgentGoatAgent(GoatAgent):
 
     def act(self, **kwargs):
         #  no lock needed because only the main thread calls act() and modifies state here
+        last_step_locs = self._get_neighbor_locs()
         self._drain_recv_queue()
-        neighbor_locs = self._get_neighbor_locs()
+        neighbor_locs = last_step_locs if self.neighbor_locs_from_last_step else self._get_neighbor_locs()
         for key in list(self.others_active_task_expiration.keys()):
             if (
                 self._get_communication_time_unit()
@@ -331,10 +336,24 @@ class BaseMultiAgentGoatAgent(GoatAgent):
         )
         data["transformed_loc"] = transformed_loc
         data["transformed_map"] = transfomed_map
+        distance = (
+            (torch.tensor(self.semantic_map.global_loc) - torch.tensor(transformed_loc))
+            .float()
+            .norm()
+            .item()
+            * self.semantic_map.resolution
+            / 100
+        )
 
         self.comm_log.info(
-            f"Map aligned with Agent {neighbor_id}, neighor_loc: {transformed_loc}"
+            f"Map aligned with Agent {neighbor_id}, distance: {distance:.2f}m, neighor_loc: {transformed_loc}"
         )
+        if distance > self.max_merge_distance:
+            self.comm_log.warning(f"Agent {neighbor_id} is {distance:.2f}m away after alignment, skipping merge")
+            self._vis_merge_failed(data, reason="dist")
+            data.pop("transformed_map")
+            data.pop("transformed_loc")
+            return
 
 
         if self.visualization_level > 0:

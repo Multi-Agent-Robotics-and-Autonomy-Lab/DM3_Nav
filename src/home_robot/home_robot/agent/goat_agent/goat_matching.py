@@ -97,7 +97,10 @@ class GoatMatching(Matching):
         valid_data = [
             (inst, views)
             for inst in candidate_instances
-            if (views := inst._get_valid_views(self.instance_memory.images, last_view))
+            if (views := inst._get_valid_views(
+                self.instance_memory.images, last_view,
+                self.instance_memory.min_view_pixels, self.instance_memory.min_view_edge,
+            ))
         ]
 
         candidate_instances, all_views = zip(*valid_data) if valid_data else ([], [])

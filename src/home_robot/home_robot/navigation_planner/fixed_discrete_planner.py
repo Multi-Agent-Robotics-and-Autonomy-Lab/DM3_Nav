@@ -89,6 +89,8 @@ class DiscretePlanner:
         agent_id=None,
         ground_truth_semantics=None,
         task_type=None,
+        frontier_min_size: int = 12,
+        frontier_min_size_min_dilation: int = 8,
         real_world=False,
     ):
         """
@@ -139,6 +141,8 @@ class DiscretePlanner:
         self.visualization_level = visualization_level
         self.ground_truth_semantics = ground_truth_semantics
         self.stop_distance = int(stop_distance / self.map_resolution)
+        self.frontier_min_size = frontier_min_size
+        self.frontier_min_size_min_dilation = frontier_min_size_min_dilation  # used at minimum obstacle dilation
         self.prev_frontier = np.zeros(self.map_shape, dtype=np.uint8)
         self._last_neighbor_set = set()
         self.planner = FMMPlanner(
@@ -1022,9 +1026,9 @@ class DiscretePlanner:
         return clustered_map_convex_hull
 
     def get_frontier_planning_maps(self):
-        min_size = 12
+        min_size = self.frontier_min_size
         if self.curr_frontier_dilation == self.min_obs_dilation_selem_radius:
-            min_size = 8
+            min_size = self.frontier_min_size_min_dilation
         traversible = self.get_traversible(True, self.curr_frontier_dilation)
         frontier_map = self.semantic_map.get_frontier_map(
             local=True, timestep=self.timestep, min_size=min_size, traversible=traversible

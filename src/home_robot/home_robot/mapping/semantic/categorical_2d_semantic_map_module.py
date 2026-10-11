@@ -35,18 +35,18 @@ class UpdateStateLogger(logging.LoggerAdapter):
         return f"[UPDATE_STATE] {msg}", kwargs
 
 def compute_known_cells_map(
-    obstacle_map_tensor, robot_pos, max_range, gaze_width, num_beams=360
+    obstacle_map_tensor, robot_pos, max_range, gaze_width, num_beams=360, dilation=7
 ):
     device = obstacle_map_tensor.device
     H, W = obstacle_map_tensor.shape
     
     # Dilate obstacles
     obstacle_map = (obstacle_map_tensor >= 1).float()
-    kernel = torch.ones(1, 1, 7, 7, device=device)
+    kernel = torch.ones(1, 1, dilation, dilation, device=device)
     obstacle_map = torch.nn.functional.conv2d(
         obstacle_map.unsqueeze(0).unsqueeze(0),
         kernel,
-        padding=3
+        padding=dilation // 2
     ).squeeze() > 0
     
     cx, cy = robot_pos
@@ -99,6 +99,7 @@ def get_fp_exp_pred(self, fp_map_pred):
             self.gaze_distance * 100 / self.resolution,
             self.gaze_width,
             num_beams=360,
+            dilation=self.known_cells_dilation,
         )
         return fp_exp_pred
     elif self.exploration_type == "default":
@@ -195,6 +196,9 @@ class Categorical2DSemanticMapModule(nn.Module):
         log_odds_occ=0.5,
         log_odds_free=0.8,
         max_log_odds=5.0,
+        gaze_width=None,
+        known_cells_dilation=7,
+        scale_occupancy_by_evidence=False,
     ):
         """
         Arguments:
@@ -236,8 +240,9 @@ class Categorical2DSemanticMapModule(nn.Module):
         self.camera_matrix = camera_params.camera_matrix  # Namespace(xc, zc, f)
         self.agent_height = camera_params.camera_height * 100.0
 
-        self.gaze_width = self.hfov
+        self.gaze_width = self.hfov if gaze_width is None else gaze_width
         self.gaze_distance = camera_params.max_depth
+        self.known_cells_dilation = known_cells_dilation  # size of the obstacle dilation before ray casting
 
         self.num_sem_categories = num_sem_categories
 
@@ -294,6 +299,9 @@ class Categorical2DSemanticMapModule(nn.Module):
         self.log_odds_occ = log_odds_occ          # 0.8
         self.log_odds_free = log_odds_free         # 0.4
         self.max_log_odds = max_log_odds           # 10.0
+        # False: every hit adds log_odds_occ (clears dynamic obstacles faster on the robot).
+        # True: a hit adds evidence * log_odds_occ (evidence = depth points / map_pred_threshold).
+        self.scale_occupancy_by_evidence = scale_occupancy_by_evidence
         self._prev_local_pose = None
 
 
@@ -806,8 +814,7 @@ class Categorical2DSemanticMapModule(nn.Module):
         # Positive update: only where depth points actually landed
         occ_update = torch.where(
             visible_mask & (obs_evidence_in_map > 0),
-            # obs_evidence_in_map * self.log_odds_occ, #! Removed this to remove  dynamic obstacles much faster
-            self.log_odds_occ,
+            obs_evidence_in_map * self.log_odds_occ if self.scale_occupancy_by_evidence else self.log_odds_occ,
             torch.zeros_like(obs_evidence_in_map),
         )
         # Negative update: anywhere in gaze FOV (we can see it's empty)
