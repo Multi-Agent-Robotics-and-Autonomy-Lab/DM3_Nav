@@ -38,6 +38,7 @@ pip install sophuspy --upgrade
 pip install -e yolov10          # ultralytics fork that provides the YOLOv10 and YOLO-World classes
 pip install huggingface-hub==0.36.0
 pip install gurobipy==12.0.3    # habitat's nav.py imports it; MSPL also needs a license 
+pip install pyzmq               # realworld_goat_agent imports zmq; multiagent_eval_episode imports that agent in sim too
 
 mkdir -p src/home_robot/home_robot/perception/detection/detic/Detic/models
 wget https://dl.fbaipublicfiles.com/detic/Detic_LCOCOI21k_CLIP_SwinB_896b32_4x_ft4x_max-size.pth \
@@ -56,12 +57,16 @@ wget https://dl.fbaipublicfiles.com/habitat/data/datasets/objectnav/hm3d/v2/obje
 unzip -q data/datasets/objectnav_hm3d_v1.zip -d data/datasets/objectnav/hm3d && mv data/datasets/objectnav/hm3d/objectnav_hm3d_v1 data/datasets/objectnav/hm3d/v1
 unzip -q data/datasets/objectnav_hm3d_v2.zip -d data/datasets/objectnav/hm3d && mv data/datasets/objectnav/hm3d/objectnav_hm3d_v2 data/datasets/objectnav/hm3d/v2
 
-# HM3D scenes: mount them (see docker run above), or download with your credentials:
+# HM3D scenes: method 1: mount the HM3D dataset when creating the container at data/versioned_data/hm3d-0.2/hm3d (docker run -v ... at the top of this script). The HM3D dataset is available at https://matterport.com/habitat-matterport-3d-research-dataset
+# HM3D scenes: method 2: download with your credentials. Uncomment the following lines and fill in your HM3D_USERNAME and HM3D_PASSWORD above. The download will take a long time (tens of GBs). 
+# yes | python -m habitat_sim.utils.datasets_download \
+#     --username ${HM3D_USERNAME} --password ${HM3D_PASSWORD} --uids hm3d_full
+
+# Link the HM3D dataset to the expected location in data/scene_datasets. The symlink is needed for the task datasets to find the scenes.
 mkdir -p data/scene_datasets
 ln -sfn /home-robot/data/versioned_data/hm3d-0.2/hm3d data/scene_datasets/hm3d_v0.2
 ln -sfn /home-robot/data/versioned_data/hm3d-0.2/hm3d data/scene_datasets/hm3d
-# yes | python -m habitat_sim.utils.datasets_download \
-#     --username ${HM3D_USERNAME} --password ${HM3D_PASSWORD} --uids hm3d_full
+
 
 # Gurobi license, needed only for MSPL in multi-agent GOAT runs. Put gurobi.lic at
 # /root/.gurobi/gurobi.lic and add this line to ~/.bashrc:
