@@ -7,7 +7,7 @@
 FROM fairembodied/habitat-challenge:homerobot-ovmm-challenge-2023
 
 ARG REPO_URL=https://github.com/Multi-Agent-Robotics-and-Autonomy-Lab/DM3_nav.git
-ARG BRANCH=main
+ARG BRANCH=IROS2026
 ARG HM3D_USERNAME
 ARG HM3D_PASSWORD
 

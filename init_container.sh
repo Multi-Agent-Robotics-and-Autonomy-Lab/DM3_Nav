@@ -5,7 +5,7 @@
 #       fairembodied/habitat-challenge:homerobot-ovmm-challenge-2023 bash
 
 REPO_URL=https://github.com/Multi-Agent-Robotics-and-Autonomy-Lab/DM3_nav.git
-BRANCH=main
+BRANCH=IROS2026
 
 # HM3D credentials — needed only if you download HM3D instead of mounting it.
 # Get your own: https://matterport.com/habitat-matterport-3d-research-dataset
