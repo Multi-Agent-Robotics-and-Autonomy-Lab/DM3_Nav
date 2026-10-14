@@ -83,16 +83,22 @@ Inside the container:
 source /opt/conda/etc/profile.d/conda.sh && conda activate home-robot
 cd /home-robot
 
-# Multi-agent HM3D ObjectNav with the IROS 2026 settings
-python projects/habitat_goat/multiagent_eval_episode.py \
-    --project_config_path projects/habitat_goat/configs/agent/hm3d_iros_final.yaml --name iros_final
+CFG=projects/habitat_goat/configs/agent/hm3d_iros_final.yaml
 
-# Multi-agent GOAT
-python projects/habitat_goat/multiagent_eval_episode.py \
-    --project_config_path projects/habitat_goat/configs/agent/hm3d_eval_new.yaml
+# HM3D ObjectNav, 2 agents, detection (Mask R-CNN + YOLOv10)
+python projects/habitat_goat/multiagent_eval_episode.py --project_config_path $CFG --num_agents 2 --name hm3d_det_2agents
 
-# Single-agent
-python projects/habitat_goat/eval_episode.py
+# HM3D ObjectNav, 2 agents, ground-truth semantics
+python projects/habitat_goat/multiagent_eval_episode.py --project_config_path $CFG --num_agents 2 --gt --name hm3d_gt_2agents
+
+# GOAT-Bench val_seen, 1 agent, detection (Detic + YOLO-World)
+python projects/habitat_goat/eval_episode.py --project_config_path $CFG --dataset goat --cat_match_threshold 0.4 --name goat_det
+
+# GOAT-Bench val_seen, 1 agent, ground-truth semantics
+python projects/habitat_goat/eval_episode.py --project_config_path $CFG --dataset goat --gt --name goat_gt
+
+# GOAT-Bench val_seen, 1-4 agents, detection, at most 200 steps (here 2 agents)
+python projects/habitat_goat/multiagent_eval_episode.py --project_config_path $CFG --dataset goat --cat_match_threshold 0.4 --max_steps 200 --num_agents 2 --name goat_det_steps200_2agents
 ```
 
 - Results are written to `datadump/results/<name>/per_episode_metrics.json`.

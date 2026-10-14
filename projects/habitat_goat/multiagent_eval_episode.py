@@ -41,6 +41,8 @@ def read_configs(args):
     project_config = OmegaConf.load(args.project_config_path)
     if args.dataset is not None:
         project_config.DATASET = args.dataset
+    if args.num_agents is not None:
+        project_config.NUM_AGENTS = args.num_agents
     habitat_config_path = DATASET_CONFIGS[project_config.DATASET]
     habitat_config = get_config(habitat_config_path)
     config = DictConfig({**habitat_config, **project_config})
@@ -97,6 +99,9 @@ def read_configs(args):
     
     if args.cat_match_threshold is not None:
         config.AGENT.cat_match_threshold = args.cat_match_threshold
+
+    if args.max_steps is not None:
+        config.AGENT.max_steps = args.max_steps
 
     return config
 

@@ -87,6 +87,18 @@ def read_args():
         default=None,
         help="score threshold for category matching in GOAT",
     )
+    parser.add_argument(
+        "--max_steps",
+        type=int,
+        default=None,
+        help="Maximum number of steps",
+    )
+    parser.add_argument(
+        "--num_agents",
+        type=int,
+        default=None,
+        help="Number of agents",
+    )
     args = parser.parse_args()
     return args
 
@@ -144,6 +156,9 @@ def read_configs(args):
     
     if args.cat_match_threshold is not None:
         config.AGENT.cat_match_threshold = args.cat_match_threshold
+
+    if args.max_steps is not None:
+        config.AGENT.max_steps = args.max_steps
 
     return config
 
