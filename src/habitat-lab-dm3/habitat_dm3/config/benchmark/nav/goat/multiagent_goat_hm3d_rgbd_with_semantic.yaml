@@ -41,3 +41,15 @@ habitat:
     habitat_sim_v0:
       gpu_device_id: 0
       allow_sliding: False
+
+  dataset:
+    type: DM3Goat-v1
+
+  task:
+    lab_sensors:
+      gps_sensor:
+        type: DM3GPSSensor
+      compass_sensor:
+        type: DM3CompassSensor
+      multigoal_sensor:
+        type: DM3MultiGoalSensor

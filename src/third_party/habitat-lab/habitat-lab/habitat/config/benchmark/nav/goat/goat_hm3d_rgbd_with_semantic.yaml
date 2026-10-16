@@ -12,7 +12,6 @@ habitat:
     max_episode_steps: 2500
 
   simulator:
-    type: MultiAgentSim-v0
     turn_angle: 30
     tilt_angle: 30
     action_space_config: "v1"

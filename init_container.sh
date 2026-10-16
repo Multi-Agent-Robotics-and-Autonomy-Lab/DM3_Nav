@@ -33,6 +33,7 @@ pip install -e src/third_party/detectron2
 pip install -r src/home_robot/home_robot/perception/detection/detic/Detic/requirements.txt
 pip install -e src/third_party/habitat-lab/habitat-lab
 pip install -e src/third_party/habitat-lab/habitat-baselines
+pip install -e src/habitat-lab-dm3
 pip install "gym>=0.25" bresenham gdown
 pip install sophuspy --upgrade
 pip install -e yolov10          # ultralytics fork that provides the YOLOv10 and YOLO-World classes

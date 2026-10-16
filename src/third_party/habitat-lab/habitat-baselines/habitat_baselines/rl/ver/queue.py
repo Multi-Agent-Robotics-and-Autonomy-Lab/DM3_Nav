@@ -27,14 +27,13 @@ else:
     import warnings
 
     import torch
-    import multiprocessing.queues
 
     warnings.warn(
         "Unable to import faster_fifo."
         " Using the fallback. This may reduce performance."
     )
 
-    class BatchedQueue(multiprocessing.queues.Queue):
+    class BatchedQueue(torch.multiprocessing.Queue):
         def get_many(
             self,
             block=True,

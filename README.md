@@ -106,6 +106,10 @@ python projects/habitat_goat/multiagent_eval_episode.py --project_config_path $C
 - If you rerun with the same `--name`, episodes that are already recorded are skipped.
 - Multi-agent GOAT runs compute MSPL with Gurobi, which needs a license: mount it into the container and set `GRB_LICENSE_FILE` to its path.
 
+## Code
+
+`src/third_party/habitat-lab` is Meta's [habitat-lab](https://github.com/facebookresearch/habitat-lab) at commit `018cdd74` (branch `home-robot_goat_support`), unmodified. DM3-Nav's additions to it (the multi-agent simulator, tasks, measures, GOAT dataset reader and configs) are in the package `src/habitat-lab-dm3` (`import habitat_dm3`).
+
 ## Troubleshooting
 
 ### `Unable to create windowless context`

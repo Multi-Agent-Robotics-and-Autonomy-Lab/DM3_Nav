@@ -209,11 +209,6 @@ class GOATSubTaskStopActionConfig(ActionConfig):
     type: str = "GOATSubTaskStopAction"
 
 
-@attr.s(auto_attribs=True, slots=True)
-class MultiAgentGOATStopActionConfig(ActionConfig):
-    type: str = "MultiAgentGOATStopAction"
-
-
 # -----------------------------------------------------------------------------
 # # TASK_SENSORS
 # -----------------------------------------------------------------------------
@@ -509,11 +504,6 @@ class GOATSubTaskSuccessMeasurementConfig(MeasurementConfig):
     type: str = "GOATSubTaskSuccess"
     success_distance: float = 0.2
 
-@attr.s(auto_attribs=True, slots=True)
-class MultiAgentGOATSuccessMeasurementConfig(MeasurementConfig):
-    type: str = "MultiAgentGOATSuccess"
-    success_distance: float = 0.2
-
 
 @attr.s(auto_attribs=True, slots=True)
 class SPLMeasurementConfig(MeasurementConfig):
@@ -524,9 +514,6 @@ class SPLMeasurementConfig(MeasurementConfig):
 class GOATSubTaskSPLMeasurementConfig(MeasurementConfig):
     type: str = "GOATSubTaskSPL"
 
-@attr.s(auto_attribs=True, slots=True)
-class MultiAgentGOATSPLMeasurementConfig(MeasurementConfig):
-    type: str = "MultiAgentGOATSPL"
 
 @attr.s(auto_attribs=True, slots=True)
 class SoftSPLMeasurementConfig(MeasurementConfig):
@@ -932,13 +919,6 @@ class DistanceToGoalMeasurementConfig(MeasurementConfig):
 @attr.s(auto_attribs=True, slots=True)
 class GOATDistanceToSubGoalMeasurementConfig(MeasurementConfig):
     type: str = "GOATDistanceToSubGoal"
-    distance_to: str = "POINT"
-    goals_attr: str = "goals"
-    distance_from: str = "BASE"
-
-@attr.s(auto_attribs=True, slots=True)
-class MultiAgentGOATDistanceToSubGoalMeasurementConfig(MeasurementConfig):
-    type: str = "MultiAgentGOATDistanceToSubGoal"
     distance_to: str = "POINT"
     goals_attr: str = "goals"
     distance_from: str = "BASE"
@@ -1482,12 +1462,6 @@ cs.store(
     node=GOATSubTaskStopActionConfig,
 )
 cs.store(
-    package="habitat.task.actions.multiagent_goat_stop",
-    group="habitat/task/actions",
-    name="multiagent_goat_stop",
-    node=MultiAgentGOATStopActionConfig,
-)
-cs.store(
     package="habitat.task.actions.answer",
     group="habitat/task/actions",
     name="answer",
@@ -1847,12 +1821,6 @@ cs.store(
     node=GOATDistanceToSubGoalMeasurementConfig,
 )
 cs.store(
-    package="habitat.task.measurements.multiagent_goat_distance_to_sub-goal",
-    group="habitat/task/measurements",
-    name="multiagent_goat_distance_to_sub-goal",
-    node=MultiAgentGOATDistanceToSubGoalMeasurementConfig,
-)
-cs.store(
     package="habitat.task.measurements.distance_to_goal_instance",
     group="habitat/task/measurements",
     name="distance_to_goal_instance",
@@ -1877,12 +1845,6 @@ cs.store(
     node=GOATSubTaskSuccessMeasurementConfig,
 )
 cs.store(
-    package="habitat.task.measurements.multiagent_goat_success",
-    group="habitat/task/measurements",
-    name="multiagent_goat_success",
-    node=MultiAgentGOATSuccessMeasurementConfig,
-)
-cs.store(
     package="habitat.task.measurements.spl",
     group="habitat/task/measurements",
     name="spl",
@@ -1893,12 +1855,6 @@ cs.store(
     group="habitat/task/measurements",
     name="goat_sub-task_spl",
     node=GOATSubTaskSPLMeasurementConfig,
-)
-cs.store(
-    package="habitat.task.measurements.multiagent_goat_spl",
-    group="habitat/task/measurements",
-    name="multiagent_goat_spl",
-    node=MultiAgentGOATSPLMeasurementConfig,
 )
 cs.store(
     package="habitat.task.measurements.soft_spl",

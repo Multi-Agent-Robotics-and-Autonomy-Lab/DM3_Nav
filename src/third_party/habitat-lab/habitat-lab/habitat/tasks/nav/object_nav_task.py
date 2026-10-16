@@ -17,7 +17,6 @@ from habitat.tasks.nav.nav import (
     NavigationEpisode,
     NavigationGoal,
     NavigationTask,
-    MultiAgentNavigationTask
 )
 
 try:
@@ -182,12 +181,6 @@ class ObjectGoalSensor(Sensor):
 
 @registry.register_task(name="ObjectNav-v1")
 class ObjectNavigationTask(NavigationTask):
-    r"""An Object Navigation Task class for a task specific methods.
-    Used to explicitly state a type of the task in config.
-    """
-
-@registry.register_task(name="MultiAgentObjectNav-v1")
-class MultiAgentObjectNavigationTask(MultiAgentNavigationTask):
     r"""An Object Navigation Task class for a task specific methods.
     Used to explicitly state a type of the task in config.
     """

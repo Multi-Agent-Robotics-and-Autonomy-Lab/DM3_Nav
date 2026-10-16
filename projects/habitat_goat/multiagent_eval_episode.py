@@ -29,6 +29,7 @@ from home_robot.agent.goat_agent.realworld_goat_agent import RealWorldGoatAgent
 from home_robot_sim.env.habitat_goat_env.habitat_goat_env import (
     MultiAgentHabitatGoatEnv,
 )
+import habitat_dm3  # registers DM3-Nav's habitat additions
 
 from eval_episode import read_args, save_results
 
@@ -44,7 +45,7 @@ def read_configs(args):
     if args.num_agents is not None:
         project_config.NUM_AGENTS = args.num_agents
     habitat_config_path = DATASET_CONFIGS[project_config.DATASET]
-    habitat_config = get_config(habitat_config_path)
+    habitat_config = get_config(habitat_config_path, configs_dir=habitat_dm3.CONFIG_DIR)
     config = DictConfig({**habitat_config, **project_config})
 
     if project_config.DATASET == "goat":

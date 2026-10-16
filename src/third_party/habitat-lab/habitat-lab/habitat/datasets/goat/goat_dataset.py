@@ -63,7 +63,6 @@ class GoatDatasetV1(PointNavDatasetV1):
     episodes: List[LanguageNavEpisode] = []  # type: ignore
     content_scenes_path: str = "{data_path}/content/{scene}.json.gz"
     goals: Dict[str, Sequence[ObjectGoal]]
-    all_categories: List[str] = []
 
     @staticmethod
     def dedup_goals(dataset: Dict[str, Any]) -> Dict[str, Any]:
@@ -189,8 +188,6 @@ class GoatDatasetV1(PointNavDatasetV1):
             for goal in composite_episode.tasks:
                 goal_type = goal[1]
                 goal_category = goal[0]
-                if goal_category not in self.all_categories:
-                    self.all_categories.append(goal_category)
                 goal_inst_id = goal[2]
 
                 dset_same_cat_goals = [x for x in self.goals.values() if x[0]['object_category'] == goal_category]
@@ -198,10 +195,9 @@ class GoatDatasetV1(PointNavDatasetV1):
                 assert len(dset_same_cat_goals) == 1, f"more than 1 goal categories for {goal_category}"
 
                 if goal_type == "object":
-                    composite_episode.goals.append(dset_same_cat_goals[0])
+                    composite_episode.goals.append(dset_same_cat_goals)
                 else:
                     goal_inst = [x for x in dset_same_cat_goals[0] if x['object_id'] == goal_inst_id]
-                    assert len(goal_inst) == 1
                     composite_episode.goals.append(goal_inst)
 
             self.episodes.append(composite_episode)  # type: ignore [attr-defined]

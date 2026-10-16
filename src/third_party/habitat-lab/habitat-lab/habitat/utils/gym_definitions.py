@@ -87,8 +87,7 @@ def _make_habitat_gym_env(
 
 
 def _try_register(id_name, entry_point, kwargs):
-    # if id_name in registry.env_specs:
-    if id_name in registry:
+    if id_name in registry.env_specs:
         return
     register(
         id_name,
@@ -97,8 +96,7 @@ def _try_register(id_name, entry_point, kwargs):
     )
 
 
-# if "Habitat-v0" not in registry.env_specs:
-if "Habitat-v0" not in registry:
+if "Habitat-v0" not in registry.env_specs:
     # Generic supporting general configs
     _try_register(
         id_name="Habitat-v0",

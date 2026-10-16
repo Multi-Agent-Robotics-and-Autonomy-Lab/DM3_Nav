@@ -3,7 +3,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-from typing import TYPE_CHECKING, Any, List, Optional, Dict
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import attr
 import numpy as np
@@ -13,8 +13,7 @@ import habitat_sim
 from habitat.core.logging import logger
 from habitat.core.registry import registry
 from habitat.core.simulator import RGBSensor, Sensor, SensorTypes
-from habitat.core.dataset import Episode
-from habitat.tasks.nav.nav import NavigationEpisode, NavigationTask, MultiAgentNavigationTask
+from habitat.tasks.nav.nav import NavigationEpisode, NavigationTask
 from habitat.utils.geometry_utils import quaternion_from_coeff
 from habitat_sim import bindings as hsim
 from habitat_sim.agent.agent import AgentState, SixDOFPose
@@ -49,30 +48,23 @@ class MultiGoalSensor(Sensor):
     ):
         self._sim = sim
         self._dataset = dataset
-        self._get_rgb_sensor_space()
 
-        self._current_episode_id = None
-        self._current_image_goal = None
-
-        super().__init__(config=config)
-
-    def _get_rgb_sensor_space(self):
-        if hasattr(self._sim.sensor_suite, "sensor_suites"):
-            sensor_suite = self._sim.sensor_suite.sensor_suites[0]
-        else:
-            sensor_suite = self._sim.sensor_suite
-
-        sensors = sensor_suite.sensors.items()
+        sensors = self._sim.sensor_suite.sensors
         rgb_sensor_uuids = [
             uuid
-            for uuid, sensor in sensors
+            for uuid, sensor in sensors.items()
             if isinstance(sensor, RGBSensor)
         ]
         if len(rgb_sensor_uuids) != 1:
             raise ValueError(
                 f"ImageGoalNav requires one RGB sensor, {len(rgb_sensor_uuids)} detected"
             )
-        self._rgb_sensor_obs_space = sensor_suite.observation_spaces.spaces[rgb_sensor_uuids[0]]
+
+        (self._rgb_sensor_uuid,) = rgb_sensor_uuids
+        self._current_episode_id = None
+        self._current_image_goal = None
+
+        super().__init__(config=config)
 
     def _get_uuid(self, *args: Any, **kwargs: Any) -> str:
         return self.cls_uuid
@@ -82,11 +74,14 @@ class MultiGoalSensor(Sensor):
 
     def _get_observation_space(self, *args: Any, **kwargs: Any):
         max_tasks = 10
+        max_semantic_classes = 1000
 
         goal_dict = {
             "category": spaces.Text(min_length=0, max_length=50),
             "description": spaces.Text(min_length=0, max_length=120),
-            "image": self._rgb_sensor_obs_space,
+            "image": self._sim.sensor_suite.observation_spaces.spaces[
+                self._rgb_sensor_uuid
+            ],
         }
 
         return spaces.Tuple([spaces.Dict(goal_dict) for _ in range(max_tasks)])
@@ -163,69 +158,36 @@ class MultiGoalSensor(Sensor):
             )
             return None
 
-        goals = []
+        goals, vocabulary = [], []
         for goal_idx, goal_val in enumerate(episode.tasks):
             
             goal = {}
-            goal_type = goal_val[1]
-            goal_category = goal_val[0]
-            assert goal_category == episode.goals[goal_idx][0]["object_category"]
 
-            goal["category"] = goal_category
-            goal["image"] = None
-            goal["description"] = None
-
-            if goal_type == "image":
+            if goal_val[1] == "image":
+                goal["category"] = episode.goals[goal_idx][0]["object_category"]
                 img_goal_id = goal_val[-1]
                 goal["image"] = self.get_image_goal(episode, goal_idx, img_goal_id)
-            elif goal_type == "description":
-                goal["description"] = episode.goals[goal_idx][0]["lang_desc"]
+            else:
+                goal["image"] = None
             
+            if goal_val[1] == "description":
+                goal["category"] = episode.goals[goal_idx][0]["object_category"]
+                goal["description"] = episode.goals[goal_idx][0]["lang_desc"]
+            else:
+                goal["description"] = None
+            
+            if goal_val[1] == "object":
+                goal["category"] = episode.goals[goal_idx][0][0]["object_category"]
+
             goals.append(goal)
         return goals
 
 
 @registry.register_task(name="Goat-v1")
-class GoatTask(NavigationTask):
+class GoatTask(NavigationTask):  # TODO
     r"""A GOAT Task class for a task specific methods.
     Used to explicitly state a type of the task in config.
     """
-    
-    current_task_idx: int
-    update_goal: bool
-    stops_called: Dict[int, int]
-
-    def reset(self, episode):
-        self.stops_called = {}
-        self.current_task_idx = 0
-        self.update_goal = False
-        self.num_tasks = len(episode.goals)
-        return super().reset(episode)
-    
-    def step(self, action: Dict[str, Any], episode: Episode):
-        self.update_goal = False
-        obs = super().step(action, episode)
-        return obs
-
-@registry.register_task(name="MultiAgentGoat-v1")
-class MultiAgentGoatTask(MultiAgentNavigationTask):
-    update_goal: bool
-    idle_agents: Dict[int, bool]
-
-    def reset(self, episode):
-        self.stops_called = {}
-        self.update_goal = False
-        self.num_tasks = len(episode.goals)
-        return super().reset(episode)
-    
-    def step(self, action: Dict[str, Any], episode: Episode):
-        self.idle_agents = 0
-        obs = super().step(action, episode)
-        if len(action) == self.idle_agents:
-            self.is_stop_called = True
-        self.update_goal = True
-        return obs
-    
 
 
 @attr.s(auto_attribs=True, kw_only=True)

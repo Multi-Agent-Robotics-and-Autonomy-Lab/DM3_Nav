@@ -32,5 +32,4 @@ measurements:
   goat_distance_to_sub-goal:
     distance_to: VIEW_POINTS
   goat_sub-task_success:
-    # success_distance: 0.25 # different for objectnav and langnav
-    success_distance: 1 # different for objectnav and langnav
+    success_distance: 0.25 # different for objectnav and langnav

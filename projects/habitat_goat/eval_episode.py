@@ -24,6 +24,7 @@ from home_robot.utils.logger import get_logger
 from home_robot.agent.goat_agent.goat_agent import GoatAgent
 from home_robot.core.interfaces import DiscreteNavigationAction
 from home_robot_sim.env.habitat_goat_env.habitat_goat_env import HabitatGoatEnv
+import habitat_dm3  # registers DM3-Nav's habitat additions
 
 DATASET_CONFIGS = {
     "habitat_objnav_2022": "benchmark/nav/objectnav/objectnav_hm3d_2022_rgbd_with_semantic.yaml",  # V1
@@ -108,7 +109,7 @@ def read_configs(args):
     if args.dataset is not None:
         project_config.DATASET = args.dataset
     habitat_config_path = DATASET_CONFIGS[project_config.DATASET]
-    habitat_config = get_config(habitat_config_path)
+    habitat_config = get_config(habitat_config_path, configs_dir=habitat_dm3.CONFIG_DIR)
     config = DictConfig({**habitat_config, **project_config})
     config.NUM_AGENTS = 1
     config.habitat.simulator.agents.agent0 = config.habitat.simulator.agents.pop(

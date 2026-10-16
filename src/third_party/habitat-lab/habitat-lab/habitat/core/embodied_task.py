@@ -388,25 +388,3 @@ class EmbodiedTask:
 
     def seed(self, seed: int) -> None:
         return
-
-
-class MultiAgentEmbodiedTask(EmbodiedTask):
-    def step(self, action: List[Any], episode: Episode):
-        observations = {}
-        for a in action:
-            self._step_single_action(
-                observations, a["action"], a, episode
-            )
-
-        observations.update(
-            self.sensor_suite.get_observations(
-                    observations=observations,
-                    episode=episode,
-                    action=action,
-                    task=self,
-                )
-        )
-        self._is_episode_active = self._check_episode_is_active(
-            observations=observations, action=action, episode=episode
-        )
-        return observations

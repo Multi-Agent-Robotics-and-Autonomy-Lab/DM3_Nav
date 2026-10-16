@@ -49,7 +49,7 @@ class HabitatGoatEnv(HabitatEnv):
 
         if config.AGENT.SEMANTIC_MAP.semantic_categories == "dataset":
             dataset_type = config.habitat.dataset.type
-            if dataset_type == "Goat-v1":
+            if dataset_type == "DM3Goat-v1":
                 self.semantic_category_mapping = GoatCategories(self.fetch_vocabulary())
                 logger.debug(f"{self.semantic_category_mapping.cat_id_to_goal_name}")
             elif dataset_type == "ObjectNav-v1":
@@ -70,7 +70,7 @@ class HabitatGoatEnv(HabitatEnv):
 
 
     def fetch_vocabulary(self):
-        if self.config.habitat.dataset.type == "Goat-v1":
+        if self.config.habitat.dataset.type == "DM3Goat-v1":
             vocabulary = sorted(
                 {
                     "_".join(cat.split(" "))
@@ -240,7 +240,7 @@ class HabitatGoatEnv(HabitatEnv):
 
         task_idx = action["action_args"]["task_idx"]
 
-        if self.task_type == "Goat-v1":
+        if self.task_type == "DM3Goat-v1":
             ep_metrics["goat_sub-task_success"] = ep_metrics["goat_sub-task_success"][task_idx]
             ep_metrics["goat_distance_to_sub-goal"] = ep_metrics["goat_distance_to_sub-goal"][0]
             all_metrics[task_idx] = ep_metrics

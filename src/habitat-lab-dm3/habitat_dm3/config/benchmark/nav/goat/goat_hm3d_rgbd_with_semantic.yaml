@@ -2,16 +2,17 @@
 
 defaults:
   - /habitat: habitat_config_base
-  - /habitat/task: objectnav
+  - /habitat/task: goat
   - /habitat/simulator/agents@habitat.simulator.agents.main_agent: rgbds_agent
-  - /habitat/dataset/objectnav: habitat_challenge_2022
+  - /habitat/dataset/goat: hm3d
   - _self_
 
 habitat:
   environment:
-    max_episode_steps: 500
+    max_episode_steps: 2500
 
   simulator:
+    type: MultiAgentSim-v0
     turn_angle: 30
     tilt_angle: 30
     action_space_config: "v1"
@@ -40,3 +41,27 @@ habitat:
     habitat_sim_v0:
       gpu_device_id: 0
       allow_sliding: False
+
+  dataset:
+    type: DM3Goat-v1
+
+  task:
+    type: DM3Goat-v1
+    lab_sensors:
+      gps_sensor:
+        type: DM3GPSSensor
+      compass_sensor:
+        type: DM3CompassSensor
+      multigoal_sensor:
+        type: DM3MultiGoalSensor
+    measurements:
+      goat_distance_to_sub-goal:
+        type: DM3GOATDistanceToSubGoal
+      goat_sub-task_success:
+        type: DM3GOATSubTaskSuccess
+        success_distance: 1
+      goat_sub-task_spl:
+        type: DM3GOATSubTaskSPL
+    actions:
+      goat_sub-task_stop:
+        type: DM3GOATSubTaskStopAction

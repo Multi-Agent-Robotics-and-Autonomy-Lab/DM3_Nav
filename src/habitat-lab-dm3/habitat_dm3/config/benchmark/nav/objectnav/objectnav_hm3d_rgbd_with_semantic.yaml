@@ -1,0 +1,62 @@
+# @package _global_
+
+defaults:
+  - /habitat: habitat_config_base
+  - /habitat/task: objectnav
+  - /habitat/simulator/agents@habitat.simulator.agents.main_agent: rgbds_agent
+  - /habitat/dataset/objectnav: hm3d
+  - _self_
+
+habitat:
+  environment:
+    max_episode_steps: 500
+
+  simulator:
+    type: MultiAgentSim-v0
+    turn_angle: 30
+    tilt_angle: 30
+    action_space_config: "v1"
+    agents:
+      main_agent:
+        sim_sensors:
+          rgb_sensor:
+            width: 640
+            height: 480
+            hfov: 79
+            position: [0, 0.88, 0]
+          depth_sensor:
+            width: 640
+            height: 480
+            hfov: 79
+            min_depth: 0.5
+            max_depth: 5.0
+            position: [0, 0.88, 0]
+          semantic_sensor:
+            width: 640
+            height: 480
+            hfov: 79
+            position: [0, 0.88, 0]
+        height: 0.88
+        radius: 0.18
+    habitat_sim_v0:
+      gpu_device_id: 0
+      allow_sliding: False
+
+  task:
+    lab_sensors:
+      gps_sensor:
+        type: DM3GPSSensor
+      compass_sensor:
+        type: DM3CompassSensor
+    measurements:
+      distance_to_goal:
+        type: DM3DistanceToGoal
+      success:
+        type: DM3Success
+        success_distance: 0.2
+      spl:
+        type: DM3SPL
+      soft_spl:
+        type: DM3SoftSPL
+      distance_to_goal_reward:
+        type: DM3DistanceToGoalReward
