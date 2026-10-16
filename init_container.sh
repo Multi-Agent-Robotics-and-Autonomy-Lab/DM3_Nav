@@ -27,7 +27,7 @@ source /opt/conda/etc/profile.d/conda.sh
 conda activate home-robot
 git submodule update --init --recursive \
     src/home_robot/home_robot/agent/imagenav_agent/SuperGluePretrainedNetwork \
-    yolov10
+    src/third_party/yolov10
 export TORCH_CUDA_ARCH_LIST="8.6"
 pip install -e src/third_party/detectron2
 pip install -r src/home_robot/home_robot/perception/detection/detic/Detic/requirements.txt
@@ -36,7 +36,7 @@ pip install -e src/third_party/habitat-lab/habitat-baselines
 pip install -e src/habitat-lab-dm3
 pip install "gym>=0.25" bresenham gdown
 pip install sophuspy --upgrade
-pip install -e yolov10          # ultralytics fork that provides the YOLOv10 and YOLO-World classes
+pip install -e src/third_party/yolov10          # ultralytics fork that provides the YOLOv10 and YOLO-World classes
 pip install huggingface-hub==0.36.0
 pip install gurobipy==12.0.3    # habitat's nav.py imports it; MSPL also needs a license 
 pip install pyzmq               # realworld_goat_agent imports zmq; multiagent_eval_episode imports that agent in sim too
