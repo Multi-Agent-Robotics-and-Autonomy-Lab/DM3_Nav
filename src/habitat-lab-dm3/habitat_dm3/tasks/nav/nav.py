@@ -797,7 +797,8 @@ def solve_GTSP(cluster_nodes, dist, num_agents):
     n_clusters = len(cluster_nodes)
     depot_idx = cluster_nodes[0][0]
 
-    model = gp.Model("MultiAgent_GTSP")
+    env = gp.Env()  # releasting the env releases the license, so we can run parallel GTSP solves in multiple processes
+    model = gp.Model("MultiAgent_GTSP", env=env)
     model.setParam("OutputFlag", 0)
     
     x = {}
@@ -881,6 +882,8 @@ def solve_GTSP(cluster_nodes, dist, num_agents):
     model.optimize()
     
     if model.status != GRB.OPTIMAL:
+        model.dispose()
+        env.dispose()
         return None, None, None
     
     routes = {k: [] for k in range(num_agents)}
@@ -914,4 +917,7 @@ def solve_GTSP(cluster_nodes, dist, num_agents):
         route = routes[k]
         route_distances[k] = sum(dist[route[i]][route[i + 1]] for i in range(len(route) - 1))
     
-    return routes, route_distances, model.objVal
+    max_dist = model.objVal
+    model.dispose()
+    env.dispose()
+    return routes, route_distances, max_dist
