@@ -280,7 +280,19 @@ class MultiAgentGOATSPL(SPL):
         
     def _get_optimal_distance(self, episode):
         start_position = self._sim.get_agent_state().position
-        goal_positions = [[g["position"] for g in goals] for goals in episode.goals]
+        # d* to where success is measured: per goal instance, its view point closest to the instance centre among
+        # those reachable from the start (instance centres are often inside the object and unreachable)
+        goal_positions = []
+        for goals in episode.goals:
+            instance_points = []
+            for g in goals:
+                centre = np.asarray(g["position"], dtype=np.float64)
+                view_points = [vp["agent_state"]["position"] for vp in g["view_points"]]
+                for vp in sorted(view_points, key=lambda p: float(np.linalg.norm(np.asarray(p) - centre))):
+                    if not np.isinf(self._sim.geodesic_distance(start_position, [vp])):
+                        instance_points.append(vp)
+                        break
+            goal_positions.append(instance_points)
 
         cluster_positions = self._remove_unreachable_positions(start_position, goal_positions)
 
@@ -407,13 +419,10 @@ class MultiAgentGOATSPL(SPL):
     ):
         if self._optimal_distance == -1:
             self._optimal_distance = self._get_optimal_distance(episode)
-        ep_success = task.measurements.measures[
+        # success over all goals of the episode: a goal no robot stopped at is a failure
+        ep_success = sum(task.measurements.measures[
             MultiAgentGOATSuccess.cls_uuid
-        ].get_metric().values()
-        if len(ep_success) > 0:
-            ep_success = np.mean(list(ep_success)).item()
-        else:
-            ep_success = 0.0
+        ].get_metric().values()) / len(episode.goals)
         
 
         for agent_id in range(self.num_agents):
